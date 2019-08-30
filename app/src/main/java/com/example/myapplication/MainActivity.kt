@@ -9,14 +9,18 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication.models.ResponseModel
 import com.example.myapplication.models.User
 import com.example.myapplication.service.LoginService
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import kotlinx.serialization.json.Json
-import okhttp3.MediaType
+import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import androidx.core.app.ComponentActivity
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+
+
 
 class MainActivity : AppCompatActivity() {
     private var number: Long = 1
@@ -25,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val typeface =  Typeface.createFromAsset(this.baseContext.assets, "fonts/samim-en.ttf")
+        val typeface = Typeface.createFromAsset(this.baseContext.assets, "fonts/samim-en.ttf")
 
         val tvResult: TextView = findViewById(R.id.tv_result)
         tvResult.text = printWithFormat()
@@ -38,27 +42,35 @@ class MainActivity : AppCompatActivity() {
             } else {
                 btnResult.isEnabled = false
                 val retrofit = Retrofit.Builder()
-                    .baseUrl("https://reqres.in/")
+                    .baseUrl("http://moviesapi.ir/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
+
                 val loginService = retrofit.create(LoginService::class.java)
-                val res: Call<ResponseModel> = loginService.login(User("eve.holt@reqres.in", "cityslicka"))
-//                TargetActivity.start(this, "Target Activity")
-                res.enqueue(object: Callback<ResponseModel> {
+                val user = User("password", "adicom@gmail.com", "123456")
+                val res: Call<ResponseModel> = loginService.login(user)
+                res.enqueue(object : Callback<ResponseModel> {
                     override fun onResponse(
                         call: Call<ResponseModel>,
                         response: Response<ResponseModel>
                     ) {
-                        Log.e("TAG", response.toString())
+                        val responseModel: ResponseModel? = response.body()
+                        changeActivity(responseModel)
                     }
 
                     override fun onFailure(call: Call<ResponseModel>, t: Throwable) {
-                        t.printStackTrace()
+                        Log.e("TAG", t.message)
                     }
 
                 })
             }
         }
+    }
+
+    private fun changeActivity(responseModel: ResponseModel?) {
+        val gson = Gson()
+        val myJson = gson.toJson(responseModel)
+        TargetActivity.start(this, myJson)
     }
 
     private fun printWithFormat(): String {

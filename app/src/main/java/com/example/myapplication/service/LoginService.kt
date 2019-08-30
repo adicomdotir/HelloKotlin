@@ -12,6 +12,6 @@ interface LoginService {
   Call<List<Repo>> listRepos(@Path("user") String user);
      */
 
-    @POST("api/login")
+    @POST("/oauth/token")
     fun login(@Body user: User): Call<ResponseModel>
 }

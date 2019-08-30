@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.myapplication.models.ResponseModel
+import com.google.gson.Gson
 
 class TargetActivity : AppCompatActivity() {
 
@@ -14,8 +16,10 @@ class TargetActivity : AppCompatActivity() {
 
         val intent: Intent = intent
         val message = intent.getStringExtra("Key")
+        val gson = Gson()
+        val res = gson.fromJson(message, ResponseModel::class.java)
         val tvMessage: TextView = findViewById(R.id.tv_message)
-        tvMessage.text = message
+        tvMessage.text = res.expires_in.toString()
     }
 
     companion object {
